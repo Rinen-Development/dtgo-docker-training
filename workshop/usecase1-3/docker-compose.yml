@@ -25,13 +25,13 @@ services:
     container_name: web
     image: registry.dtgo.com/gift-registration/web
     pull_policy: always
-    ports:
-      - 4040:80
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.usecase1-3-web.rule=Host(`${FRONTEND_DOMAIN}`)
-      - traefik.http.routers.usecase1-3-web.entrypoints=websecure
-      - traefik.http.routers.usecase1-3-web.tls=true
+    # ports:
+    #   - 4040:80
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.http.routers.usecase1-3-web.rule=Host(`${FRONTEND_DOMAIN}`)
+    #   - traefik.http.routers.usecase1-3-web.entrypoints=websecure
+    #   - traefik.http.routers.usecase1-3-web.tls=true
     environment:
       FRONTEND_HOST: ${FRONTEND_DOMAIN}
       BCAKEND_HOST: ${BACKEND_DOMAIN}
@@ -61,7 +61,7 @@ services:
     container_name: api
     image: registry.dtgo.com/gift-registration/api
     pull_policy: always
-    restart: "always"
+    restart: always
     ports:
       - ${DIRECTUS_PORT}:8055
     volumes:
@@ -70,42 +70,13 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.usecase1-3-api.rule=Host(`${BACKEND_DOMAIN}`)
-      - traefik.http.routers.usecase1-3-api.entrypoints=websecure
-      - traefik.http.routers.usecase1-3-api.tls=true
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.http.routers.usecase1-3-api.rule=Host(`${BACKEND_DOMAIN}`)
+    #   - traefik.http.routers.usecase1-3-api.entrypoints=websecure
+    #   - traefik.http.routers.usecase1-3-api.tls=true
     env_file:
-      - .env
-    # environment:
-    #   EXTENSIONS_AUTO_RELOAD: ${EXTENSIONS_AUTO_RELOAD}
-    #   LOG_LEVEL: ${LOG_LEVEL}
-    #   LOG_STYLE: ${LOG_STYLE}
-    #   LOGGER_LEVELS: ${LOGGER_LEVELS}
-    #   PUBLIC_URL: ${DIRECTUS_PUBLIC_URL}
-    #   KEY: ${DIRECTUS_KEY}
-    #   SECRET: ${DIRECTUS_SECRET}
-    #   DB_CLIENT: "pg"
-    #   DB_HOST: ${DB_HOST}
-    #   DB_PORT: ${DB_PORT}
-    #   DB_DATABASE: ${DB_DATABASE}
-    #   DB_USER: ${DB_USER}
-    #   DB_PASSWORD: ${DB_PASSWORD}
-    #   ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
-    #   ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
-    #   AUTH_PROVIDERS: "microsoft"
-    #   AUTH_MICROSOFT_DRIVER: "openid"
-    #   AUTH_MICROSOFT_CLIENT_ID: ${AUTH_MICROSOFT_CLIENT_ID}
-    #   AUTH_MICROSOFT_CLIENT_SECRET: ${AUTH_MICROSOFT_CLIENT_SECRET}
-    #   AUTH_MICROSOFT_SCOPE: "openid email"
-    #   AUTH_MICROSOFT_ICON: "microsoft"
-    #   AUTH_MICROSOFT_IDENTIFIER_KEY: "email"
-    #   AUTH_MICROSOFT_ALLOW_PUBLIC_REGISTRATION: "true"
-    #   AUTH_MICROSOFT_AUTHORIZE_URL: ${AUTH_MICROSOFT_AUTHORIZE_URL}
-    #   AUTH_MICROSOFT_ACCESS_URL: ${AUTH_MICROSOFT_ACCESS_URL}
-    #   AUTH_MICROSOFT_ISSUER_URL: ${AUTH_MICROSOFT_ISSUER_URL}
-    #   AUTH_MICROSOFT_DEFAULT_ROLE_ID: ${AUTH_MICROSOFT_DEFAULT_ROLE_ID}
-      
+      - .env      
     networks:
       - reverse-proxy
       - usecase1-3

@@ -1,0 +1,36 @@
+version: "3.3"
+services:
+  reverse-proxy:
+    image: traefik:v2.9.5
+    container_name: traefik
+    command:
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entryPoints.web.address=:80
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  web:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.usecase1-3-web.rule=Host(`${FRONTEND_DOMAIN}`)
+      - traefik.http.routers.usecase1-3-web.entrypoints=web
+  directus:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.usecase1-3-api.rule=Host(`${BACKEND_DOMAIN}`)
+      - traefik.http.routers.usecase1-3-api.entrypoints=web
+  whoami:
+    image: traefik/whoami
+    deploy:
+      replicas: 2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.risk_management-whoami.rule=Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.risk_management-whoami.entrypoints=web"

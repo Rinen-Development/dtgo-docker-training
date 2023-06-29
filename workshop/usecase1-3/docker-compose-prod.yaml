@@ -1,0 +1,14 @@
+version: "3.3"
+services:
+  web:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.usecase1-3-web.rule=Host(`${FRONTEND_DOMAIN}`)
+      - traefik.http.routers.usecase1-3-web.entrypoints=websecure
+      - traefik.http.routers.usecase1-3-web.tls=true
+  directus:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.usecase1-3-api.rule=Host(`${BACKEND_DOMAIN}`)
+      - traefik.http.routers.usecase1-3-api.entrypoints=websecure
+      - traefik.http.routers.usecase1-3-api.tls=true

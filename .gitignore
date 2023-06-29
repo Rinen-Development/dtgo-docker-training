@@ -15,3 +15,5 @@ obj/
 data
 
 .DS_Store
+
+*.log
