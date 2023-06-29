@@ -1,0 +1,24 @@
+version: '3.9'
+services:
+  database:
+    ports:
+      - "27020:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+  web:
+    volumes:
+      - ./config:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    depends_on:
+      cache:
+        condition: service_healthy
+  api:
+    labels:
+      - com.host.description=label
+    ports:
+      - "9090:80"
+    environment:
+      - APP_MONGO_URI=mongodb://database:27017
+  

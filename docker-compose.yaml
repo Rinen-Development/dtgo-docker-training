@@ -1,14 +1,10 @@
 version: '3.9'
 services:
-  dataabase:
+  database:
     image: mongo:4.2
-    ports:
-      - "27017:27017"
     volumes:
-      - "./data/mongodb:/data/db"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      - "./data/mongodb:/data/db"    
+    restart: on-failure:2
     healthcheck:
       test: ["CMD","mongo","--quiet","127.0.0.1/test","--eval","'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",]
       interval: 10s
@@ -21,18 +17,11 @@ services:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
   web:
     image: nginx
-    ports:
-      - "8080:80"
-    depends_on:
-      cache:
-        condition: service_healthy
   api:
     build:
       context: ./ProductApi
-      dockerfile: Dockerfile
-    ports:
-      - "9090:80"
+      dockerfile: Dockerfile    
     depends_on:
-      dataabase:
+      database:
         condition: service_healthy
   
