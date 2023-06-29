@@ -1,0 +1,117 @@
+version: "3.3"
+services:
+  database:
+    container_name: database
+    image: postgres:14
+    restart: on-failure:3
+    pull_policy: missing
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_EXPOSE_PORT}:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - usecase1-3
+  web:
+    container_name: web
+    image: registry.dtgo.com/gift-registration/web
+    pull_policy: always
+    ports:
+      - 4040:80
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.usecase1-3-web.rule=Host(`${FRONTEND_DOMAIN}`)
+      - traefik.http.routers.usecase1-3-web.entrypoints=websecure
+      - traefik.http.routers.usecase1-3-web.tls=true
+    environment:
+      FRONTEND_HOST: ${FRONTEND_DOMAIN}
+      BCAKEND_HOST: ${BACKEND_DOMAIN}
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - reverse-proxy
+      - usecase1-3
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    pull_policy: missing
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin-gift@dtgo.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - ${PGADMIN_PORT}:80
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - usecase1-3
+
+  directus:
+    container_name: api
+    image: registry.dtgo.com/gift-registration/api
+    pull_policy: always
+    restart: "always"
+    ports:
+      - ${DIRECTUS_PORT}:8055
+    volumes:
+      - "./app/directus/uploads:/directus/uploads"
+      - "./app/directus/logs:/directus/logs"
+    depends_on:
+      database:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.usecase1-3-api.rule=Host(`${BACKEND_DOMAIN}`)
+      - traefik.http.routers.usecase1-3-api.entrypoints=websecure
+      - traefik.http.routers.usecase1-3-api.tls=true
+    env_file:
+      - .env
+    # environment:
+    #   EXTENSIONS_AUTO_RELOAD: ${EXTENSIONS_AUTO_RELOAD}
+    #   LOG_LEVEL: ${LOG_LEVEL}
+    #   LOG_STYLE: ${LOG_STYLE}
+    #   LOGGER_LEVELS: ${LOGGER_LEVELS}
+    #   PUBLIC_URL: ${DIRECTUS_PUBLIC_URL}
+    #   KEY: ${DIRECTUS_KEY}
+    #   SECRET: ${DIRECTUS_SECRET}
+    #   DB_CLIENT: "pg"
+    #   DB_HOST: ${DB_HOST}
+    #   DB_PORT: ${DB_PORT}
+    #   DB_DATABASE: ${DB_DATABASE}
+    #   DB_USER: ${DB_USER}
+    #   DB_PASSWORD: ${DB_PASSWORD}
+    #   ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+    #   ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+    #   AUTH_PROVIDERS: "microsoft"
+    #   AUTH_MICROSOFT_DRIVER: "openid"
+    #   AUTH_MICROSOFT_CLIENT_ID: ${AUTH_MICROSOFT_CLIENT_ID}
+    #   AUTH_MICROSOFT_CLIENT_SECRET: ${AUTH_MICROSOFT_CLIENT_SECRET}
+    #   AUTH_MICROSOFT_SCOPE: "openid email"
+    #   AUTH_MICROSOFT_ICON: "microsoft"
+    #   AUTH_MICROSOFT_IDENTIFIER_KEY: "email"
+    #   AUTH_MICROSOFT_ALLOW_PUBLIC_REGISTRATION: "true"
+    #   AUTH_MICROSOFT_AUTHORIZE_URL: ${AUTH_MICROSOFT_AUTHORIZE_URL}
+    #   AUTH_MICROSOFT_ACCESS_URL: ${AUTH_MICROSOFT_ACCESS_URL}
+    #   AUTH_MICROSOFT_ISSUER_URL: ${AUTH_MICROSOFT_ISSUER_URL}
+    #   AUTH_MICROSOFT_DEFAULT_ROLE_ID: ${AUTH_MICROSOFT_DEFAULT_ROLE_ID}
+      
+    networks:
+      - reverse-proxy
+      - usecase1-3
+
+networks:
+  reverse-proxy:
+    external: true
+  usecase1-3:
+    name: usecase1-3
