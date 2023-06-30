@@ -1,0 +1,33 @@
+version: "3.3"
+services:
+  web:
+    container_name: web
+    image: registry.dtgo.com/gift-registration/web
+    pull_policy: always
+    environment:
+      FRONTEND_HOST: ${FRONTEND_DOMAIN}
+      BCAKEND_HOST: ${BACKEND_DOMAIN}
+    networks:
+      - reverse-proxy
+      - usecase1-3
+  directus:
+    container_name: api
+    image: registry.dtgo.com/gift-registration/api
+    pull_policy: always
+    restart: always
+    ports:
+      - ${DIRECTUS_PORT}:8055
+    volumes:
+      - "./app/directus/uploads:/directus/uploads"
+      - "./app/directus/logs:/directus/logs"
+    env_file:
+      - .env
+    networks:
+      - reverse-proxy
+      - usecase1-3
+
+networks:
+  reverse-proxy:
+    external: true
+  usecase1-3:
+    name: usecase1-3
