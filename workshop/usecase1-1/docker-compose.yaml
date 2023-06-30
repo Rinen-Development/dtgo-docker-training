@@ -21,7 +21,7 @@ services:
       - "./tradfik/certs:/etc/ssl/traefik"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
   web:
-    image: registry.dtgo.com/projecttemplate/react-frontend
+    image: registry.dtgo.com/training/docker/web
     pull_policy: always
     restart: always
     networks:
