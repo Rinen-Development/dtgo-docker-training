@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  web:
+    image: registry.dtgo.com/training/docker/web
+    pull_policy: always
+    restart: always
+    networks:
+      - usecase1-1
+  # api:
+  #   image: imageName
+  #   pull_policy: always
+  #   restart: always
+  #   networks:
+  #     - usecase1-1
+networks:
+  usecase1-1:
+    name: usecase1-1

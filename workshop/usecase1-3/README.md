@@ -1,6 +1,6 @@
 # Use case 1-3
 
-Fluter + Directus + PostgreSQL
+Flutter + Directus + PostgreSQL
 
 Environment
 1. Development
