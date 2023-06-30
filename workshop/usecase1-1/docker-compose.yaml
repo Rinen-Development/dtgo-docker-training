@@ -1,17 +1,37 @@
 version: '3.9'
 services:
+  reverse-proxy:
+    image: traefik:v2.9.5
+    container_name: traefik
+    command:
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      - --entryPoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - "./tradfik/certs:/etc/ssl/traefik"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
   web:
-    image: registry.dtgo.com/training/docker/web
+    image: registry.dtgo.com/projecttemplate/react-frontend
     pull_policy: always
     restart: always
     networks:
       - usecase1-1
-  # api:
-  #   image: imageName
-  #   pull_policy: always
-  #   restart: always
-  #   networks:
-  #     - usecase1-1
+  api:
+    image: registry.dtgo.com/training/docker/api:1.0.0
+    pull_policy: always
+    restart: always
+    networks:
+      - usecase1-1
 networks:
   usecase1-1:
     name: usecase1-1
